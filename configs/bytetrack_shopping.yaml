@@ -1,0 +1,9 @@
+# ByteTrack para o vídeo do shopping (24 FPS, cena pouco lotada, câmera alta e fixa).
+# Formato da Ultralytics. Ajuste olhando o video_deteccoes.mp4 (trocas de id, ids perdidos).
+tracker_type: bytetrack
+track_high_thresh: 0.3    # 1ª associação
+track_low_thresh: 0.1     # 2ª associação (detecções fracas, ex.: pessoa parcialmente oculta)
+new_track_thresh: 0.4     # confiança para criar um id novo (evita ids falsos)
+track_buffer: 48          # quadros que um id perdido espera (48 = 2 s a 24 FPS)
+match_thresh: 0.8
+fuse_score: True

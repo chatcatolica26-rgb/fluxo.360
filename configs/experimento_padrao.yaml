@@ -1,0 +1,25 @@
+# Configuração padrão dos experimentos com o MOT20.
+# Copie este arquivo para testar outras configurações (ex.: outro modelo YOLO,
+# outra confiança mínima) e compare os resultados com src.experiments.compare.
+
+experiment:
+  name: yolov8n_bytetrack
+
+data:
+  root: data/raw/mot20                     # onde o MOT20.zip foi extraído
+  output: data/processed/mot20/experimentos
+  sequences: [MOT20-01, MOT20-02]          # comece pelas duas primeiras de treinamento
+
+detector:
+  model: yolov8n.pt          # yolov8s.pt / yolov8m.pt / yolo11n.pt ... (baixado na 1ª execução)
+  conf: 0.1                  # baixo de propósito: o ByteTrack aproveita detecções fracas
+  iou: 0.7                   # NMS
+  imgsz: 1280                # quadros do MOT20 são 1920x1080 com pessoas pequenas
+  device: null               # null = automático; "cpu", "0" (GPU 0)...
+
+tracker:
+  config: bytetrack.yaml     # padrão da Ultralytics; ou configs/bytetrack_mot20.yaml
+
+evaluation:
+  iou_threshold: 0.5         # IoU mínimo para considerar uma caixa correta
+  min_visibility: 0.0        # 0 = avalia todos os pedestres anotados

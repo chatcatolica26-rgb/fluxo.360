@@ -1,0 +1,39 @@
+# Análise de circulação no vídeo real do shopping (separada dos experimentos do MOT20).
+# Uso: python -m src.experiments.run_shopping            (ou --fim 2 para um teste curto)
+
+experimento:
+  nome: praca_eventos
+
+video:
+  arquivo: data/raw/shopping/praca_eventos.mp4   # coloque o vídeo aqui (fora do Git)
+  inicio_s: 0          # trecho a processar, em segundos
+  fim_s: null          # null = até o fim
+  passo: 1             # 1 = todos os quadros; 2 = um a cada dois
+
+camera:
+  calibracao: configs/cameras/cam_praca_eventos.yaml   # gerado por tools/calibrar_camera.py
+
+planta_yaml: configs/planta.yaml
+
+detector:
+  model: yolov8n.pt    # yolov8s.pt detecta melhor, mas é mais lento
+  conf: 0.3            # maior que no MOT20 (0.1) para reduzir manequins e reflexos
+  iou: 0.7
+  imgsz: 1280
+  device: null         # null = automático; "cpu"; "0" = GPU 0
+
+tracker:
+  config: configs/bytetrack_shopping.yaml
+
+acumulacao:
+  celula_m: 0.5        # tamanho de cada célula da matriz, em metros
+  sigma_m: 0.75        # suavização só das imagens, em metros
+
+validacao:
+  min_pontos_trajetoria: 12   # ~0,5 s a 24 FPS para contar como trajetória
+  margem_borda_px: 3          # pé encostado na borda de baixo do quadro = posição incerta
+
+saida:
+  pasta: data/processed/shopping
+  video_deteccoes: true
+  video_planta: true

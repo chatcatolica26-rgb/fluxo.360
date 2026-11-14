@@ -1,0 +1,19 @@
+# Plantas do Capim Dourado Shopping (fonte: "Planta Mix", Operações CDS, nov/2026)
+# Sistema de coordenadas de cada piso: pixels da imagem (x para a direita, y para baixo).
+# metros = pixel / px_por_metro
+pisos:
+  terreo:
+    imagem: data/planta/terreo_limpa.png           # fundo do mapa de calor
+    referencia: data/planta/terreo_original.png    # com nomes de lojas, para calibrar
+    px_por_metro: 10
+    tamanho_px: [4803, 3654]
+    escala_fonte: "cotas do desenho (ex.: 27,78 m / 25,77 m), ~0,303 m por ponto do PDF"
+    escala_conferida_em_campo: false
+
+  praca_alimentacao:
+    imagem: data/planta/praca_alimentacao_limpa.png
+    referencia: data/planta/praca_alimentacao_original.png
+    px_por_metro: 40
+    tamanho_px: [4486, 3125]
+    escala_fonte: "poucas cotas no desenho, ~0,056 m por ponto do PDF (estimativa, +-3%)"
+    escala_conferida_em_campo: false

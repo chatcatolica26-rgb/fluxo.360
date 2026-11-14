@@ -1,0 +1,23 @@
+# Dados do MOT20 e resultados NÃO vão para o GitHub (licença CC BY-NC-SA 3.0 e tamanho)
+data/raw/**
+data/processed/**
+data/samples/**
+!data/**/.gitkeep
+!data/README.md
+
+# Pesos de modelos baixados
+*.pt
+*.onnx
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+
+# Sistema / editores
+.DS_Store
+.idea/
+.vscode/

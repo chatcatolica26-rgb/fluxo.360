@@ -1,0 +1,127 @@
+camera_id: cam_praca_eventos
+piso: terreo
+fonte: data/raw/shopping/praca_eventos.mp4
+frame_tamanho:
+- 1280
+- 720
+calibrado_em: '2026-11-14T06:47:01'
+status: preliminar - feita a distancia, sem medidas no local; conferir no shopping
+  com calibrar_camera.py
+metodo: minimos quadrados com 4 pontos, 3 linhas (vitrines norte e sul, base dos degraus)
+  e 13 placas pretas do piso (devem virar quadrados); validado pela borda curva da
+  Praca de Eventos, nao usada no ajuste
+erro_medio_m: 0.486
+erro_max_m: 1.214
+pontos:
+- descricao: coluna entre FMW (Loja 76) e Loja 75, na base
+  video:
+  - 150.0
+  - 163.0
+  planta_px:
+  - 1284.0
+  - 2523.0
+  planta_m:
+  - 128.4
+  - 252.3
+  erro_m: 0.195
+- descricao: inicio dos degraus, lado norte
+  video:
+  - 443.0
+  - 108.0
+  planta_px:
+  - 1383.0
+  - 2574.0
+  planta_m:
+  - 138.3
+  - 257.4
+  erro_m: 1.274
+- descricao: inicio dos degraus, lado sul
+  video:
+  - 775.0
+  - 111.0
+  planta_px:
+  - 1383.0
+  - 2663.0
+  planta_m:
+  - 138.3
+  - 266.3
+  erro_m: 0.872
+- descricao: pouso da escada rolante sul (fim da escada)
+  video:
+  - 785.0
+  - 680.0
+  planta_px:
+  - 1178.0
+  - 2666.0
+  planta_m:
+  - 117.8
+  - 266.6
+  erro_m: 0.857
+linhas_usadas:
+  norte:
+  - - 0.0
+    - 208.0
+  - - 60.0
+    - 190.0
+  - - 253.0
+    - 138.0
+  - - 320.0
+    - 124.0
+  - - 380.0
+    - 110.0
+  sul:
+  - - 856.0
+    - 153.0
+  - - 915.0
+    - 180.0
+  - - 975.0
+    - 207.0
+  - - 1025.0
+    - 226.0
+  - - 1140.0
+    - 300.0
+  - - 1260.0
+    - 372.0
+  degrau:
+  - - 520.0
+    - 109.0
+  - - 600.0
+    - 110.0
+  - - 690.0
+    - 110.0
+H:
+- - -371024.38765312446
+  - -1923686.7622452932
+  - -48709012.82294029
+- - -776076.9190947353
+  - -4692857.261264686
+  - 61480921.08056622
+- - -261.1110703658245
+  - -1754.3989737793365
+  - 1.0
+mascara: data/planta/mascaras/cam_praca_eventos.png
+mascara_poligono:
+- - 1226.2
+  - 2511.2
+- - 1282.4
+  - 2524.1
+- - 1375.9
+  - 2587.1
+- - 1382.0
+  - 2671.6
+- - 1340.3
+  - 2684.9
+- - 1250.6
+  - 2711.8
+- - 1196.9
+  - 2698.9
+- - 1189.9
+  - 2682.8
+- - 1176.3
+  - 2665.8
+- - 1159.2
+  - 2637.2
+- - 1174.7
+  - 2627.1
+- - 1155.8
+  - 2600.0

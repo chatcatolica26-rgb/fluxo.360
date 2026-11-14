@@ -1,0 +1,10 @@
+# Parâmetros do ByteTrack para cenas lotadas (formato da Ultralytics).
+# Use em configs/experimento_padrao.yaml -> tracker.config: configs/bytetrack_mot20.yaml
+# Ajuste SOMENTE com sequências de treinamento (MOT20-01, 02, 03, 05).
+tracker_type: bytetrack
+track_high_thresh: 0.25   # detecções acima disso entram na 1ª associação
+track_low_thresh: 0.1     # detecções entre low e high entram na 2ª associação
+new_track_thresh: 0.25    # confiança mínima para criar um novo id
+track_buffer: 30          # quadros que um id "perdido" espera antes de ser descartado (30 = 1,2 s a 25 fps)
+match_thresh: 0.8         # limiar de associação (1 - IoU)
+fuse_score: True          # combina IoU com a confiança da detecção
