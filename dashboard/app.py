@@ -12,6 +12,7 @@ st.set_page_config(page_title="FLUXO360 — Do movimento à decisão", layout="w
                    initial_sidebar_state="expanded")
 
 import onboarding  # noqa: E402
+from ambiente import modo_web  # noqa: E402
 from paginas import ambientes, como_funciona, diagnosticos, mapa, recomendacoes, relatorios, visao_geral  # noqa: E402
 
 paginas = {
@@ -39,6 +40,8 @@ with st.sidebar:
     st.markdown("**Gestor do Shopping**  \nAdministrador")
     st.caption("Shopping Central · São Paulo, SP  \nEmpreendimento demonstrativo · Estudo espacial / 2026")
     st.caption("PROTÓTIPO · HACKATHON — dados simulados para demonstração")
+    if modo_web():
+        st.caption("Versão web de demonstração · formulários e preferências não ficam salvos")
 
 destino = st.session_state.pop("ir_para", None)          # atalho escolhido no tour
 if destino in paginas:

@@ -1,0 +1,33 @@
+﻿FLUXO360 - Do movimento à decisão
+=================================
+
+COMO INSTALAR
+1. Clique duas vezes em "Instalar FLUXO360".
+   Se o Windows mostrar "O Windows protegeu o computador", clique em
+   "Mais informações" e depois em "Executar assim mesmo".
+2. Escolha o tipo de instalação:
+   [1] Painel (recomendado)  - cerca de 500 MB
+   [2] Completo              - painel + análise de vídeo com inteligência artificial, cerca de 2 GB
+3. Aguarde. O instalador baixa tudo o que precisa (é necessário estar conectado à internet).
+   Leva de 5 a 25 minutos, conforme a internet.
+4. Pronto: abra pelo atalho FLUXO360 na área de trabalho.
+
+COMO USAR
+- Clique no atalho FLUXO360. O painel abre no navegador (Chrome, Edge...).
+- Na primeira vez aparece um guia rápido explicando cada tela.
+- O FLUXO360 roda só neste computador; depois de instalado, não precisa de internet.
+
+COMO FECHAR
+- Fechar a aba do navegador não desliga o programa.
+- Para encerrar: menu Iniciar > FLUXO360 > Encerrar FLUXO360.
+
+COMO REMOVER
+- Menu Iniciar > FLUXO360 > Desinstalar FLUXO360.
+  Suas análises e registros são guardados em Documentos\FLUXO360 - dados salvos.
+
+PROBLEMAS?
+- O painel não abre: clique de novo no atalho FLUXO360 e aguarde até 30 segundos.
+- Continua sem abrir: abra a pasta do programa (%LOCALAPPDATA%\FLUXO360),
+  entre em "instalador" e clique em "FLUXO360 - diagnostico". Envie ao suporte a
+  mensagem que aparecer e o arquivo logs\instalacao.log.
+- A instalação parou no meio: rode "Instalar FLUXO360" de novo; ele continua de onde parou.

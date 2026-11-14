@@ -1,0 +1,10 @@
+Vídeo: data/raw/shopping/praca_eventos.mp4 | 1280x720 | 24.00 FPS | 240 quadros | 10.00 s
+Trecho: 0 s até o fim | passo 1
+Calibração: configs/cameras/cam_praca_eventos.yaml | 4 pontos | erro médio 0.486 m
+  quadro 49 (2.0 s): 18 pessoas no quadro
+  quadro 99 (4.1 s): 21 pessoas no quadro
+  quadro 149 (6.2 s): 18 pessoas no quadro
+  quadro 199 (8.3 s): 17 pessoas no quadro
+Vídeos convertidos para H.264 (tocam no navegador).
+Pessoas únicas na área: 113 | detecções: 4139 (válidas 3960) | trajetórias: 59
+240 quadros em 132.4 s. Resultados em data/processed/shopping/20261114_112950_praca_eventos_demo

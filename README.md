@@ -1,141 +1,74 @@
-# Fluxo360 — integração com o MOT20
+# FLUXO360 — Do movimento à decisão
 
-Protótipo de análise de fluxo de pessoas com visão computacional. Esta parte do projeto usa a base **MOT20** para desenvolver e avaliar a **detecção (YOLO)** e o **rastreamento (ByteTrack)** de pessoas em cenas lotadas, comparando os resultados com as anotações oficiais.
+Plataforma de **análise de fluxo de pessoas em shopping centers** com visão computacional:
+o vídeo das câmeras vira **trajetórias e mapas de calor sobre a planta do shopping**, e o painel
+transforma isso em **diagnósticos e planos de ação**.
 
-> Resultados no MOT20 medem o desempenho técnico dos algoritmos. Eles **não** validam o sistema em shopping centers (veja *Restrições*).
+## Acesso rápido
+
+| O quê | Link |
+|---|---|
+| **Aplicação web (painel)** | **https://fluxo360.streamlit.app** ← *trocar pelo endereço gerado na publicação* |
+| Código-fonte | https://github.com/chatcatolica26-rgb/fluxo.360 |
+| Vídeo de demonstração (16 s) | [`data/demo/.../demo_apresentacao.mp4`](data/demo/20261114_112950_praca_eventos_demo/demo_apresentacao.mp4) |
+| Relatório da análise do vídeo real | [`data/demo/.../relatorio.md`](data/demo/20261114_112950_praca_eventos_demo/relatorio.md) |
+
+Na aplicação, comece pelo **Guia rápido** (abre sozinho) e depois veja **07 Como funciona**.
+
+## O que tem no painel
+
+| Tela | Para que serve |
+|---|---|
+| 01 Visão geral | o resumo: o que pede decisão agora e onde está o movimento |
+| 02 Mapa de movimentação | mapa por região e horário; aba **Vídeo real** com o mapa de calor e o rastro das pessoas |
+| 03 Análise de ambientes | comparação entre entrada, corredores, alimentação e convivência |
+| 04 Diagnósticos | situações por urgência, com hipóteses a verificar |
+| 05 Recomendações | planos de ação, simulador e acompanhamento antes e depois |
+| 06 Relatórios | resumo e exportação em CSV |
+| 07 Como funciona | o método, passo a passo, com o vídeo real da Praça de Eventos |
+
+> **Sobre os dados.** As telas 01 a 06 usam números **simulados** para demonstração. A aba *Vídeo real* e a
+> tela 07 mostram uma análise **real** de 10 s de vídeo da Praça de Eventos do Capim Dourado Shopping,
+> projetada na planta oficial. Pessoas aparecem **pixeladas** (LGPD). A análise publicada usa um detector
+> de demonstração (OpenCV HOG) e calibração preliminar; o sistema completo usa YOLO + ByteTrack.
+
+## Como funciona
+
+```
+vídeo da câmera ─► detecção de pessoas (YOLO) ─► rastreamento com ids (ByteTrack)
+   ─► ponto dos pés ─► homografia (chão do vídeo → planta oficial)
+   ─► acumulação no tempo (permanência e circulação, células de 0,5 m) ─► mapa de calor + rastros ─► painel
+```
+
+## Três formas de usar
+
+| Forma | Para quem | Como |
+|---|---|---|
+| **Web** | avaliadores, demonstração | abrir o link acima |
+| **Instalado no Windows** | cliente (uso local, com análise de vídeo) | ver [`instalador/GERAR_INSTALADOR.md`](instalador/GERAR_INSTALADOR.md) |
+| **Desenvolvimento** | equipe | `uv pip install -r requirements.txt -r dashboard/requirements-dashboard.txt` e `streamlit run dashboard/app.py` |
+
+Analisar um vídeo (no computador): calibrar a câmera com `python tools/calibrar_camera.py ...` e rodar
+`python -m src.experiments.run_shopping` (detalhes em [`COMO_TESTAR.md`](COMO_TESTAR.md)).
 
 ## Estrutura
 
 ```
-fluxo360/
-├── configs/
-│   ├── experimento_padrao.yaml   # modelo, limiares, sequências, avaliação
-│   └── bytetrack_mot20.yaml      # parâmetros ajustáveis do ByteTrack
-├── data/
-│   ├── raw/mot20/                # MOT20 original (fora do Git)
-│   ├── processed/mot20/          # previsões e métricas dos experimentos (fora do Git)
-│   └── samples/
-├── docs/DADOS_MOT20.md           # origem, licença, sequências e regras
-├── src/
-│   ├── dataset/                  # independente dos algoritmos
-│   │   ├── mot20_loader.py       # localiza sequências, lê quadros, exporta vídeo
-│   │   ├── mot20_annotations.py  # lê/escreve anotações MOT, classes, coordenadas
-│   │   └── evaluation.py         # MOTA, IDF1, HOTA, Precision, Recall, contagem
-│   ├── detection/yolo_detector.py
-│   ├── tracking/bytetrack_tracker.py
-│   └── experiments/
-│       ├── run_mot20.py          # executa e avalia experimentos
-│       └── compare.py            # compara configurações
-└── tests/                        # pytest com uma base MOT20 sintética
+dashboard/          painel Streamlit (7 telas, guia rápido, modo web)
+src/                visão computacional: vídeo, detecção, rastreamento, projeção, acumulação, mapas
+  experiments/run_shopping.py   análise completa de um vídeo do shopping
+  experiments/run_mot20.py      avaliação técnica com a base MOT20 (ver docs/MOT20.md)
+tools/              calibração da câmera, análise de demonstração, rastros, vídeo de demonstração
+configs/            parâmetros da análise, ByteTrack, planta e calibração das câmeras
+data/planta/        plantas do piso (base do mapa de calor)
+data/demo/          análise de demonstração publicada (vídeo real anonimizado)
+instalador/         instalador para Windows (Setup.exe com Inno Setup ou .zip)
+tests/              42 testes automatizados (pytest)
 ```
 
-## Instalação
-
-```bash
-python -m venv .venv
-source .venv/bin/activate          # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-Os pesos do YOLO (ex.: `yolov8n.pt`) são baixados automaticamente na primeira execução.
-
-## Preparar o MOT20 (Fase 2)
-
-1. Acesse <https://motchallenge.net/data/MOT20/>, aceite os termos e baixe o `MOT20.zip`.
-2. Extraia em `data/raw/mot20/`, ficando assim:
-
-```
-data/raw/mot20/train/MOT20-01/{seqinfo.ini, img1/, gt/gt.txt, det/det.txt}
-data/raw/mot20/test/MOT20-04/{seqinfo.ini, img1/, det/det.txt}
-```
-
-3. Confira se está tudo no lugar:
-
-```bash
-python -c "from src.dataset import MOT20Dataset as D; d=D(); print(d.available_sequences()); print(d.verify('MOT20-01'))"
-```
-
-As sequências vêm como quadros JPEG. Para ter um vídeo (por exemplo, para testar a leitura com OpenCV como se fosse uma câmera):
-
-```bash
-python -c "from src.dataset import MOT20Dataset as D; D().export_video('MOT20-01', 'data/samples/MOT20-01.mp4', max_frames=250)"
-```
-
-## Executar experimentos
-
-```bash
-# primeiros experimentos: MOT20-01 e MOT20-02 (padrão do config)
-python -m src.experiments.run_mot20
-
-# teste rápido
-python -m src.experiments.run_mot20 --sequences MOT20-01 --max-frames 100
-
-# só detecção (YOLO), sem rastreamento: Precision, Recall e contagem por quadro
-python -m src.experiments.run_mot20 --mode detect
-
-# outra configuração
-python -m src.experiments.run_mot20 --config configs/meu_teste.yaml --name yolov8s_conf02
-
-# reavaliar previsões já salvas
-python -m src.experiments.run_mot20 --evaluate-only data/processed/mot20/experimentos/<pasta>
-
-# comparar todos os experimentos (ordenado por HOTA)
-python -m src.experiments.compare
-```
-
-Cada execução cria `data/processed/mot20/experimentos/<data>_<nome>_<modo>/` com:
-
-| Arquivo | Conteúdo |
-|---|---|
-| `predictions/<seq>.txt` | previsões no formato oficial do MOTChallenge |
-| `metrics.json / .csv / .md` | métricas por sequência e a linha `COMBINADO` |
-| `config.yaml` | configuração usada (para reproduzir) |
-| `run_info.json` | quadros processados, tempo, FPS e versões das bibliotecas |
-
-Sequências de **teste** só geram previsões: o Ground Truth delas não é público. A avaliação delas é feita pelo servidor do MOTChallenge.
-
-## Métricas
-
-| Métrica | O que mede |
-|---|---|
-| **HOTA** (DetA, AssA, LocA) | equilíbrio entre detectar bem e manter a identidade certa |
-| **MOTA** | erros gerais: falsos positivos, falsos negativos e trocas de id |
-| **IDF1** | consistência das identidades ao longo da trajetória |
-| **Precision** | das caixas previstas, quantas são pessoas de verdade |
-| **Recall** | das pessoas de referência, quantas foram detectadas |
-| IDSW, Frag, MT/PT/ML | trocas de id, trajetórias interrompidas, trajetórias bem/mal rastreadas |
-| **Count_MAE / Count_Bias** | erro médio na quantidade de pessoas por quadro (viés > 0 = conta a mais) |
-| **ID_Count_Error / ID_Ratio** | identidades geradas × pessoas reais; valores altos indicam a mesma pessoa contada várias vezes |
-
-As definições seguem o avaliador oficial (TrackEval): associação com IoU ≥ 0,5, previsões sobre distratores ignoradas e HOTA calculado em 19 limiares de IoU (0,05 a 0,95).
-
-## Testes
-
-```bash
-pytest
-```
-
-Os testes criam uma base MOT20 pequena e falsa em pasta temporária e cobrem: carregamento das sequências, leitura das anotações, interpretação das coordenadas, comparação com o Ground Truth, cálculo das métricas (com valores conferidos à mão), erros de contagem e rastreamento e a execução completa de um experimento. Não é preciso baixar o MOT20 nem o YOLO para rodá-los.
-
-## Fases de desenvolvimento
-
-| Fase | Entrega | Situação nesta etapa |
-|---|---|---|
-| 1. Estrutura e ambiente | pastas, dependências, configs | ✅ |
-| 2. Preparação dos dados MOT20 | download, organização, `verify` | ✅ (código pronto; download manual) |
-| 3. Captura e leitura dos vídeos | leitura de quadros com OpenCV, exportação de vídeo | ✅ |
-| 4. Detecção de pessoas | `YoloPersonDetector`, `--mode detect` | ✅ |
-| 5. Rastreamento | `ByteTrackPersonTracker`, `--mode track` | ✅ |
-| 6. Avaliação dos algoritmos | `evaluation.py`, relatórios, comparação | ✅ |
-| 7. Análise de fluxo | contagem, ocupação, mapas de calor | a fazer |
-| 8. Banco de dados | armazenar experimentos e análises | a fazer |
-| 9. Dashboard | indicadores e gráficos | a fazer |
-| 10. Validação e documentação | testes finais, limitações | em andamento |
-
-## Restrições
-
-- MOT20 sob licença **CC BY-NC-SA 3.0**: uso não comercial, com atribuição. Não usar em atividade comercial sem licença adequada.
-- Os arquivos da base e os resultados não vão para o GitHub (`.gitignore`).
-- Ajustes só com sequências de treinamento; nunca usar anotações de teste para treinar ou ajustar.
-- Bons resultados no MOT20 não significam que o sistema está validado para shopping centers. Isso exige testes com vídeos reais do ambiente, com autorização e respeito à LGPD.
-- Os ids do rastreamento são temporários e não identificam pessoas.
+## Documentação
+- [`PUBLICAR_NA_WEB.md`](PUBLICAR_NA_WEB.md) — como gerar e manter o link da aplicação web
+- [`instalador/GERAR_INSTALADOR.md`](instalador/GERAR_INSTALADOR.md) — instalador para o cliente
+- [`COMO_TESTAR.md`](COMO_TESTAR.md) — análise do vídeo real passo a passo
+- [`LEIA-ME_PLANTA.md`](LEIA-ME_PLANTA.md) — plantas, escala e calibração
+- [`docs/MOT20.md`](docs/MOT20.md) — avaliação técnica de detecção e rastreamento com o MOT20

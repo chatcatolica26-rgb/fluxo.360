@@ -1,0 +1,29 @@
+experimento:
+  nome: praca_eventos_demo
+video:
+  arquivo: data/raw/shopping/praca_eventos.mp4
+  inicio_s: 0
+  fim_s: null
+  passo: 1
+camera:
+  calibracao: configs/cameras/cam_praca_eventos.yaml
+planta_yaml: configs/planta.yaml
+detector:
+  model: yolov8n.pt
+  conf: 0.3
+  iou: 0.7
+  imgsz: 1280
+  device: null
+tracker:
+  config: configs/bytetrack_shopping.yaml
+acumulacao:
+  celula_m: 0.5
+  sigma_m: 0.75
+validacao:
+  min_pontos_trajetoria: 12
+  margem_borda_px: 3
+saida:
+  pasta: data/processed/shopping
+  video_deteccoes: true
+  video_planta: true
+  anonimizar: true

@@ -1,0 +1,6 @@
+# Configuração do painel na versão web (Streamlit Community Cloud) e no desenvolvimento.
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal"

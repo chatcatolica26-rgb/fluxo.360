@@ -1,0 +1,12 @@
+# Configuração do painel instalado (copiada para .streamlit/config.toml)
+[server]
+headless = true
+port = 8360
+runOnSave = false
+
+[browser]
+gatherUsageStats = false
+serverAddress = "localhost"
+
+[client]
+toolbarMode = "minimal"

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Abrindo o FLUXO360...</title>
+<style>
+  body {margin:0; height:100vh; display:flex; align-items:center; justify-content:center;
+        font-family:"Segoe UI",Arial,sans-serif; background:#0f1520; color:#e8ecf2;}
+  .caixa {text-align:center;}
+  .marca {font-size:2.4rem; font-weight:700; letter-spacing:.04em;}
+  .sub {opacity:.7; margin:.3rem 0 2rem 0;}
+  .roda {width:46px; height:46px; margin:0 auto 1.2rem auto; border-radius:50%;
+         border:4px solid rgba(255,255,255,.15); border-top-color:#3b82f6; animation:gira 1s linear infinite;}
+  @keyframes gira {to {transform:rotate(360deg);}}
+  .dica {font-size:.85rem; opacity:.55; margin-top:2rem; max-width:420px;}
+</style>
+</head>
+<body>
+<div class="caixa">
+  <div class="marca">FLUXO360</div>
+  <div class="sub">Do movimento à decisão</div>
+  <div class="roda"></div>
+  <div id="msg">Abrindo o painel...</div>
+  <div class="dica">Na primeira vez pode levar até 30 segundos. Esta página muda sozinha quando o painel estiver pronto.</div>
+</div>
+<script>
+  // Verifica a cada 1,5 s se o painel já responde (por imagem e por fetch: o que funcionar primeiro).
+  var url = "http://localhost:8360", tentativas = 0, foi = false;
+  function abrir() { if (!foi) { foi = true; window.location.replace(url); } }
+  function tentar() {
+    if (foi) return;
+    tentativas++;
+    var img = new Image();
+    img.onload = abrir;
+    img.src = url + "/favicon.png?t=" + Date.now();
+    try { fetch(url, {mode: "no-cors", cache: "no-store"}).then(abrir).catch(function () {}); } catch (e) {}
+    if (tentativas === 40) {
+      document.getElementById("msg").textContent =
+        "Está demorando mais que o normal. Feche esta aba e clique de novo no atalho FLUXO360.";
+    }
+    setTimeout(tentar, 1500);
+  }
+  setTimeout(tentar, 1000);
+</script>
+</body>
+</html>

@@ -8,12 +8,15 @@ import streamlit as st
 import componentes as ui
 import dados_simulados as sim
 import graficos
+from ambiente import modo_web
 
 ARQ_ACOMPANHAMENTO = Path("data/acompanhamento/planos.csv")
 CORES = {"Prioridade alta": "#d64541", "Atenção": "#f2994a", "Oportunidade": "#4fb39a"}
 
 
 def _carregar() -> pd.DataFrame:
+    if modo_web():
+        return st.session_state.get("_acompanhamento_web", pd.DataFrame())
     if ARQ_ACOMPANHAMENTO.is_file():
         try:
             return pd.read_csv(ARQ_ACOMPANHAMENTO)
@@ -23,8 +26,11 @@ def _carregar() -> pd.DataFrame:
 
 
 def _salvar(registro: dict) -> None:
-    ARQ_ACOMPANHAMENTO.parent.mkdir(parents=True, exist_ok=True)
     df = pd.concat([_carregar(), pd.DataFrame([registro])], ignore_index=True)
+    if modo_web():                                 # web: só para esta visita, não fica no servidor
+        st.session_state["_acompanhamento_web"] = df
+        return
+    ARQ_ACOMPANHAMENTO.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(ARQ_ACOMPANHAMENTO, index=False)
 
 
@@ -52,7 +58,11 @@ def _plano(p: dict, historico: pd.DataFrame):
                 _salvar({"plano": p["n"], "tema": p["tema"], "situacao": situacao, "data_execucao": data_exec,
                          "antes": antes, "depois": depois, "unidade": p["unidade"], "inicio": inicio,
                          "fim": fim, "observacoes": obs})
-                st.success("Acompanhamento salvo em data/acompanhamento/planos.csv")
+                if modo_web():
+                    st.success("Registrado nesta visita. Na versão web de demonstração os registros não ficam "
+                               "salvos; na versão instalada, ficam em data/acompanhamento/planos.csv.")
+                else:
+                    st.success("Acompanhamento salvo em data/acompanhamento/planos.csv")
         if not historico.empty and "plano" in historico:
             reg = historico[historico.plano.astype(str).str.zfill(2) == p["n"]]
             if not reg.empty:

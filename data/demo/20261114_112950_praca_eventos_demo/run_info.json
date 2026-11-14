@@ -1,0 +1,100 @@
+{
+  "nome": "praca_eventos_demo",
+  "inicio": "20261114_112950",
+  "comando": "tools/analise_demo_opencv.py --anonimizar --nome praca_eventos_demo",
+  "video": {
+    "fonte": "data/raw/shopping/praca_eventos.mp4",
+    "largura": 1280,
+    "altura": 720,
+    "fps": 24.0,
+    "total_quadros": 240,
+    "duracao_s": 10.0
+  },
+  "trecho": {
+    "inicio_s": 0,
+    "fim_s": null,
+    "passo": 1
+  },
+  "quadros_processados": 240,
+  "duracao_analisada_s": 10.0,
+  "tempo_processamento_s": 132.4,
+  "fps_processamento": 1.81,
+  "contagens": {
+    "deteccoes_total": 4139,
+    "deteccoes_validas": 3960,
+    "descartes_por_motivo": {
+      "fora_da_area_calibrada": 179
+    },
+    "ids_rastreados": 114,
+    "pessoas_unicas_na_area": 113,
+    "trajetorias_registradas": 59,
+    "min_pontos_por_trajetoria": 12
+  },
+  "detector": {
+    "model": "yolov8n.pt",
+    "conf": 0.3,
+    "iou": 0.7,
+    "imgsz": 1280,
+    "device": null
+  },
+  "tracker": {
+    "arquivo": "configs/bytetrack_shopping.yaml",
+    "tracker_type": "bytetrack",
+    "track_high_thresh": 0.3,
+    "track_low_thresh": 0.1,
+    "new_track_thresh": 0.4,
+    "track_buffer": 48,
+    "match_thresh": 0.8,
+    "fuse_score": true
+  },
+  "calibracao": {
+    "arquivo": "configs/cameras/cam_praca_eventos.yaml",
+    "piso": "terreo",
+    "pontos": 4,
+    "erro_medio_m": 0.486,
+    "erro_max_m": 1.214,
+    "mascara": "data/planta/mascaras/cam_praca_eventos.png",
+    "H": [
+      [
+        -371024.38765312446,
+        -1923686.7622452932,
+        -48709012.82294029
+      ],
+      [
+        -776076.9190947353,
+        -4692857.261264686,
+        61480921.08056622
+      ],
+      [
+        -261.1110703658245,
+        -1754.3989737793365,
+        1.0
+      ]
+    ],
+    "status": "preliminar - feita a distancia, sem medidas no local; conferir no shopping com calibrar_camera.py",
+    "metodo": "minimos quadrados com 4 pontos, 3 linhas (vitrines norte e sul, base dos degraus) e 13 placas pretas do piso (devem virar quadrados); validado pela borda curva da Praca de Eventos, nao usada no ajuste"
+  },
+  "detector_usado": "OpenCV HOG + rastreador simples (demonstração, sem YOLO)",
+  "acumulacao": {
+    "celula_m": 0.5,
+    "sigma_m": 0.75,
+    "permanencia_total_s": 165.0,
+    "maximo_visual": {
+      "permanencia": 1.4583333333333337,
+      "circulacao": 7.0
+    }
+  },
+  "anonimizado": true,
+  "planta_recorte_px": [
+    1126,
+    2481,
+    1412,
+    2742
+  ],
+  "planta_escala_imagens": 2.797203,
+  "versoes": {
+    "python": "3.13.18",
+    "numpy": "2.5.3",
+    "opencv": "5.0.0"
+  }
+}

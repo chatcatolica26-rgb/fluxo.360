@@ -163,3 +163,10 @@ def desenhar_rastros(img: np.ndarray, trajetorias: dict, recorte: tuple, escala:
         if np.hypot(*(b - a)) > 4:
             cv2.arrowedLine(camada, tuple(a), tuple(b), (40, 40, 40), 2, cv2.LINE_AA, tipLength=0.9)
     return cv2.addWeighted(camada, 0.8, out, 0.2, 0)
+
+
+def pixelar(img: np.ndarray, fator: int = 8) -> np.ndarray:
+    """Anonimiza o quadro: reduz e amplia em blocos. As pessoas viram silhuetas, sem rosto reconhecível."""
+    h, w = img.shape[:2]
+    pequeno = cv2.resize(img, (max(1, w // fator), max(1, h // fator)), interpolation=cv2.INTER_AREA)
+    return cv2.resize(pequeno, (w, h), interpolation=cv2.INTER_NEAREST)

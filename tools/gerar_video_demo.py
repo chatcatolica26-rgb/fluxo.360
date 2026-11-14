@@ -126,8 +126,15 @@ def gerar(pasta: Path) -> Path:
     out.release()
 
     destino = pasta / "demo_apresentacao.mp4"
-    if shutil.which("ffmpeg"):
-        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(tmp), "-c:v", "libx264", "-preset",
+    ffmpeg = shutil.which("ffmpeg")
+    if ffmpeg is None:
+        try:
+            import imageio_ffmpeg
+            ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
+        except Exception:
+            ffmpeg = None
+    if ffmpeg:
+        subprocess.run([ffmpeg, "-y", "-loglevel", "error", "-i", str(tmp), "-c:v", "libx264", "-preset",
                         "veryfast", "-crf", "22", "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(destino)],
                        check=True)
         tmp.unlink()

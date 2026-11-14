@@ -1,0 +1,7 @@
+# Dependências da versão web (Streamlit Community Cloud lê este arquivo, na pasta do app).
+# Só o painel: a análise de vídeo (YOLO) roda na versão instalada.
+streamlit>=1.40,<2
+pandas>=2.0
+plotly>=5.20
+matplotlib>=3.8
+numpy>=1.24

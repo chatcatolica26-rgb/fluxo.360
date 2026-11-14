@@ -17,6 +17,7 @@ from pathlib import Path
 import streamlit as st
 
 import dados_reais
+from ambiente import modo_web
 
 ARQ_PREFS = Path("data/preferencias/onboarding.json")
 
@@ -73,6 +74,8 @@ CSS = """
 
 # ------------------------------------------------------------- estado salvo
 def _prefs() -> dict:
+    if modo_web():                                 # web: cada visitante tem as suas, só nesta visita
+        return dict(st.session_state.get("_prefs_web", {}))
     try:
         return json.loads(ARQ_PREFS.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
@@ -81,6 +84,9 @@ def _prefs() -> dict:
 
 def _salvar_prefs(**valores) -> None:
     dados = _prefs() | valores
+    if modo_web():
+        st.session_state["_prefs_web"] = dados
+        return
     try:
         ARQ_PREFS.parent.mkdir(parents=True, exist_ok=True)
         ARQ_PREFS.write_text(json.dumps(dados, ensure_ascii=False), encoding="utf-8")
@@ -256,9 +262,9 @@ def tour_guiado() -> None:
 
 
 AJUDA = {
-    "visao_geral": ["Os **3 cartões** são as situações que mais pedem decisão, da mais urgente para a menos urgente.",
-                    "**Evidências** são os números que sustentam os cartões.",
-                    "No **mapa**, mude o horário para ver como o movimento muda ao longo do dia."],
+    "visao_geral": ["A **frase do topo** resume o período: quanto movimento houve e o que pede ação.",
+                    "**O que fazer agora** lista as situações da mais para a menos urgente.",
+                    "No **mapa**, azul é pouco movimento e vermelho é muito; abra o mapa completo para mais detalhes."],
     "mapa": ["Cada bloco colorido é uma região do piso; o número é quantas vezes passaram por ali.",
              "As **setas** mostram para onde as pessoas seguem; quanto mais grossa, mais gente.",
              "Na aba **Vídeo real**, o mapa vem de um vídeo de verdade, sobre a planta oficial."],

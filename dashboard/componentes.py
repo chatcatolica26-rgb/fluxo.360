@@ -149,8 +149,13 @@ _LOJAS = [(8, 33, 18, 36), (26, 33, 38, 36), (62, 33, 74, 36), (82, 33, 92, 36),
           (8, 4, 42, 16), (58, 4, 92, 16), (40, 34, 60, 58)]
 
 
-def figura_planta(regioes_df, transicoes_lista, modo: str = "Mapa de calor + trajetos"):
-    """Planta esquemática do piso térreo com regiões coloridas por intensidade e setas de fluxo."""
+def figura_planta(regioes_df, transicoes_lista, modo: str = "Mapa de calor + trajetos", compacto: bool = False):
+    """Planta esquemática do piso térreo com regiões coloridas por intensidade e setas de fluxo.
+
+    ``compacto``: versão para miniatura (Visão geral): só as cores e os nomes dos ambientes, letras maiores.
+    """
+    if compacto:
+        return _planta_compacta(regioes_df)
     fig, ax = plt.subplots(figsize=(10, 6.2), dpi=120)
     ax.set_xlim(0, 100)
     ax.set_ylim(0, 62)
@@ -196,8 +201,31 @@ def figura_planta(regioes_df, transicoes_lista, modo: str = "Mapa de calor + tra
     return fig
 
 
-def mostrar_planta(regioes_df, transicoes_lista, modo: str) -> None:
-    fig = figura_planta(regioes_df, transicoes_lista, modo)
+def _planta_compacta(regioes_df):
+    fig, ax = plt.subplots(figsize=(6.4, 4.0), dpi=150)
+    ax.set_xlim(0, 100)
+    ax.set_ylim(0, 62)
+    ax.set_aspect("equal")
+    ax.axis("off")
+    ax.add_patch(Rectangle((1, 1), 98, 60, fill=False, ec="#9ca3af", lw=1))
+    for x0, y0, x1, y1 in _LOJAS:
+        ax.add_patch(Rectangle((x0, y0), x1 - x0, y1 - y0, fc="#eef0f3", ec="#d5d9df", lw=0.6))
+    info = regioes_df.set_index("id")
+    for rid, (x0, y0, x1, y1) in _RET.items():
+        if rid == "juncao":
+            continue
+        cor = sim.CORES_NIVEL[info.loc[rid].intensidade]
+        ax.add_patch(Rectangle((x0, y0), x1 - x0, y1 - y0, fc=cor, alpha=0.9, ec="white", lw=1.2))
+    rotulos = [(50, 9, "Entrada"), (23, 48, "Alimentação"), (77, 48, "Convivência"),
+               (25, 23, "Corredor A"), (75, 23, "Corredor B")]
+    for x, y, t in rotulos:
+        ax.text(x, y, t, ha="center", va="center", fontsize=9.5, fontweight="bold", color="#111827")
+    fig.tight_layout(pad=0.2)
+    return fig
+
+
+def mostrar_planta(regioes_df, transicoes_lista, modo: str, compacto: bool = False) -> None:
+    fig = figura_planta(regioes_df, transicoes_lista, modo, compacto)
     st.pyplot(fig)
     plt.close(fig)          # libera a memória a cada atualização da página
 

@@ -31,7 +31,7 @@ import yaml
 from ..dataset.mot20_annotations import write_mot_results
 from ..flow.acumulador import AcumuladorFluxo
 from ..flow.trajetorias import RegistroTrajetorias
-from ..flow.visualizacao import AnimacaoPlanta, desenhar_deteccoes, mapas_de_calor, regiao_interesse
+from ..flow.visualizacao import AnimacaoPlanta, desenhar_deteccoes, mapas_de_calor, pixelar, regiao_interesse
 from ..projection.homografia import CameraPlanta
 from ..video.video_source import VideoSource
 
@@ -44,7 +44,8 @@ DEFAULT_CONFIG = {
     "tracker": {"config": "configs/bytetrack_shopping.yaml"},
     "acumulacao": {"celula_m": 0.5, "sigma_m": 0.75},
     "validacao": {"min_pontos_trajetoria": 12, "margem_borda_px": 3},
-    "saida": {"pasta": "data/processed/shopping", "video_deteccoes": True, "video_planta": True},
+    "saida": {"pasta": "data/processed/shopping", "video_deteccoes": True, "video_planta": True,
+              "anonimizar": False},
 }
 
 
@@ -113,14 +114,27 @@ def _calibracao_sobreposta(quadro, referencia, H, mascara=None) -> np.ndarray:
     return out
 
 
-def _para_h264(caminho: Path) -> bool:
-    """Converte para H.264 (toca no navegador/painel) se o ffmpeg estiver instalado."""
+def _ffmpeg() -> str | None:
+    """ffmpeg do sistema ou, se não houver, o que vem com o pacote imageio-ffmpeg (instalado pelo FLUXO360)."""
     import shutil
+    exe = shutil.which("ffmpeg")
+    if exe:
+        return exe
+    try:
+        import imageio_ffmpeg
+        return imageio_ffmpeg.get_ffmpeg_exe()
+    except Exception:
+        return None
+
+
+def _para_h264(caminho: Path) -> bool:
+    """Converte para H.264 (toca no navegador/painel) se houver ffmpeg disponível."""
     import subprocess
-    if shutil.which("ffmpeg") is None or not caminho.is_file():
+    ffmpeg = _ffmpeg()
+    if ffmpeg is None or not caminho.is_file():
         return False
     tmp = caminho.with_suffix(".h264.mp4")
-    r = subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(caminho), "-c:v", "libx264",
+    r = subprocess.run([ffmpeg, "-y", "-loglevel", "error", "-i", str(caminho), "-c:v", "libx264",
                         "-preset", "veryfast", "-crf", "23", "-pix_fmt", "yuv420p", "-movflags", "+faststart",
                         str(tmp)], capture_output=True)
     if r.returncode == 0 and tmp.is_file():
@@ -214,6 +228,8 @@ def main(argv: list[str] | None = None, runner=None) -> Path:
     ap.add_argument("--conf", type=float, help="confiança mínima do YOLO")
     ap.add_argument("--nome", help="nome da execução")
     ap.add_argument("--sem-videos", action="store_true", help="não grava os vídeos de saída (mais rápido)")
+    ap.add_argument("--anonimizar", action="store_true",
+                    help="pixela as pessoas nas imagens e vídeos de saída (para publicar ou compartilhar)")
     args = ap.parse_args(argv)
 
     cfg = load_config(args.config)
@@ -225,6 +241,8 @@ def main(argv: list[str] | None = None, runner=None) -> Path:
     if args.camera: cfg["camera"]["calibracao"] = args.camera
     if args.conf is not None: cfg["detector"]["conf"] = args.conf
     if args.nome: cfg["experimento"]["nome"] = args.nome
+    if args.anonimizar:
+        cfg["saida"]["anonimizar"] = True
     if args.sem_videos:
         cfg["saida"]["video_deteccoes"] = cfg["saida"]["video_planta"] = False
 
@@ -285,14 +303,16 @@ def main(argv: list[str] | None = None, runner=None) -> Path:
     inicio = time.perf_counter()
     n = 0
     primeiro_quadro, melhor_quadro, melhor_n = None, None, -1
+    anonimizar = bool(cfg["saida"].get("anonimizar", False))
     for quadro, t, img in fonte:
+        tracks = runner.update(img)                   # a detecção usa sempre o quadro original
+        vis = pixelar(img) if anonimizar else img     # o que é gravado pode ser anonimizado
         if primeiro_quadro is None:
-            primeiro_quadro = img.copy()
-        tracks = runner.update(img)
+            primeiro_quadro = vis.copy()
         posicoes = registro.adicionar(quadro, t, tracks)
         validas = sum(p.valida for p in posicoes)
         if validas > melhor_n:
-            melhor_n, melhor_quadro = validas, desenhar_deteccoes(img, posicoes)
+            melhor_n, melhor_quadro = validas, desenhar_deteccoes(vis, posicoes)
         for p in posicoes:
             mot_records.append((quadro + 1, p.id, p.x1, p.y1, p.x2 - p.x1, p.y2 - p.y1, p.score))
             if p.valida:
@@ -300,7 +320,7 @@ def main(argv: list[str] | None = None, runner=None) -> Path:
                 acc.adicionar(p.id, p.planta_x, p.planta_y, fonte.dt)
         acc.registrar_quadro(fonte.dt)
         if w_det is not None:
-            w_det.write(desenhar_deteccoes(img, posicoes))
+            w_det.write(desenhar_deteccoes(vis, posicoes))
         if cfg["saida"]["video_planta"]:
             qp = anim.quadro(t, posicoes)
             if w_pl is None:
@@ -365,6 +385,7 @@ def main(argv: list[str] | None = None, runner=None) -> Path:
         "detector_usado": getattr(runner, "descricao", type(runner).__name__),
         "acumulacao": {**cfg["acumulacao"], "permanencia_total_s": round(float(acc.permanencia.sum()), 2),
                        "maximo_visual": vmax},
+        "anonimizado": anonimizar,
         "planta_recorte_px": [int(v) for v in recorte], "planta_escala_imagens": round(float(anim.escala), 6),
         "versoes": {"python": platform.python_version(), "numpy": np.__version__, "opencv": cv2.__version__},
     }

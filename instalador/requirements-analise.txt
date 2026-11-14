@@ -1,0 +1,2 @@
+# FLUXO360 - perfil "Completo": acrescenta YOLO + ByteTrack (instala o PyTorch, ~1 GB).
+ultralytics>=8.1

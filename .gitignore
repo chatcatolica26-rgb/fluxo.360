@@ -21,3 +21,10 @@ venv/
 .DS_Store
 .idea/
 .vscode/
+
+# Pacotes gerados pelo instalador
+dist/
+
+# Preferências e registros locais de cada usuário
+data/preferencias/
+data/acompanhamento/
